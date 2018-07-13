@@ -1,0 +1,246 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 212,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import ipywidgets as wg\n",
+    "import math"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Calculo de Reforço Pavimento Flexivel\n",
+    "### (base granular espessura =< 45cm)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 213,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "3346d4762c174b5fb7fcce08f82393b2",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "HBox(children=(HTML(value='1) Informar o Nº USACE >>>'), FloatText(value=59900000.0)))"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "N_titulo = wg.HTML(value=\"1) Informar o Nº USACE >>>\")\n",
+    "\n",
+    "N = wg.FloatText(value=5.99e7)\n",
+    "\n",
+    "wg.HBox([N_titulo,N])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 214,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "f16fa03aef4d4e3db5710ce66f0f11cf",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "HBox(children=(HTML(value='2) Informar a espessura do pavimento existente (0 a 20) :     '), IntSlider(value=0…"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "layout03 = wg.Layout(width='60%', height='30px')\n",
+    "h_exist_Titulo = wg.HTML(value=\"2) Informar a espessura do pavimento existente (0 a 20) :     \")\n",
+    "h_exist = wg.IntSlider(value=0,min=0,max=20,step=1, layout = layout03)\n",
+    "wg.HBox([h_exist_Titulo,h_exist])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 215,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "54f7d660b6d24dc9b211ec85e6abba68",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "HBox(children=(HTML(value='3) informar as deflexões do pavimento por estaca, em numeros inteiros (sem virgula)…"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "layout02 = wg.Layout(width='80%', height='80px')\n",
+    "\n",
+    "deflexoes_Titulo = wg.HTML(value=\"3) informar as deflexões do pavimento por estaca, em numeros inteiros (sem virgula)\")\n",
+    "deflexoes = wg.Textarea( value='26 28 27 30 31 33 14 ', layout=layout02)\n",
+    "wg.HBox([deflexoes_Titulo,deflexoes])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 216,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "ac68e372dee243f79a8861b0205076a0",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "HBox(children=(Button(button_style='success', description='Calcular', layout=Layout(height='50px', width='100%…"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "layout01 = wg.Layout(width='100%', height='50px', justify ='right')\n",
+    "\n",
+    "bt_calcular = wg.Button(description='Calcular', disabled=False, button_style='success',layout=layout01)\n",
+    "\n",
+    "\n",
+    "\n",
+    "wg.HBox([bt_calcular])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 217,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "def reforco_Pro_269(Dc):\n",
+    "    \n",
+    "    hef = -5.737 + (807.961/Dc) + 0.972\n",
+    "    \n",
+    "    if hef < h_exist.value:\n",
+    "        hef = h_exist.value\n",
+    "    hef\n",
+    "    \n",
+    "    Dadm = math.pow(10,(3.148-0.188*math.log(N.value,10)))\n",
+    "    hr = -19.015+(238.14/math.sqrt(Dadm))-1.357*hef+1.016\n",
+    "    return Dadm,hr\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 218,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "def reforco_Pro_11(Dc):\n",
+    "    \n",
+    "    Dadm = math.pow(10,(3.01-0.176*math.log10(N.value)))\n",
+    "    h = 40*(math.log(Dc/Dadm,10))\n",
+    "    return Dadm,h"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 219,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "def fun_calcular2(a):\n",
+    "    array = deflexoes.value.split()\n",
+    "    array_int = map(int,array) # < converter string in integer\n",
+    "    Serie = pd.Series(array_int)\n",
+    "    Dc= round((Serie.mean()+Serie.std()),2)\n",
+    "    \n",
+    "    Dadm_269,hr_269= reforco_Pro_269(Dc)\n",
+    "    Dadm_11,hr_11= reforco_Pro_11(Dc)\n",
+    "    \n",
+    "    nivel00 = ['DADOS']*5+ ['PRO-11']*2 + ['PRO-269']*2\n",
+    "    nivel01 = ['Num Estacas','Espessura do Projeto','Média','Desvio Padrão','Deflexão Caracteristica',\n",
+    "                  'Deflexão Admissivel', 'Espessura Reforço',\n",
+    "                  'Deflexão Admissivel', 'Espessura Reforço'\n",
+    "              ]\n",
+    "    \n",
+    "    nivel_zip = list(zip(nivel00,nivel01))\n",
+    "    indice_mult = pd.MultiIndex.from_tuples(nivel_zip)\n",
+    "    \n",
+    "    serie_dados= [1,[Serie.size,h_exist.value, round(Serie.mean(),2),round(Serie.std(),2),Dc\n",
+    "                     ,Dadm_11,hr_11,\n",
+    "                     Dadm_269,hr_269]]\n",
+    "    \n",
+    "    df = pd.DataFrame(serie_dados[1], index=indice_mult, columns=[1])\n",
+    "    linha_divisa = wg.Output(layout={'border': '1px solid black'})\n",
+    "    \n",
+    "    display(df,linha_divisa)   \n",
+    "bt_calcular.on_click(fun_calcular2)    "
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "metadata": {},
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
